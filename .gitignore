@@ -1,13 +1,39 @@
-# IDE - VSCode
-.vscode/*
-.vscode/settings.json
-.vscode/tasks.json
-.vscode/launch.json
-.vscode/extensions.json
-*.code-workspace
-
-# IDE - IntelliJ IDEA
+# IDEs
 .idea/
-*.iws
-*.iml
-*.ipr
+# Keep VS Code extensions recommendations.
+# Ignore all in .vscode except extensions.json
+backend/.vscode/*
+!backend/.vscode/extensions.json
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+
+# OS generated files
+.DS_Store
+
+# Log files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Backend (Gradle/Java)
+/backend/.gradle/
+/backend/build/
+/backend/target/
+/backend/localDB.txt
+*.class
+
+# Frontend (Node/Vue)
+/frontend/node_modules/
+/frontend/dist/
+/frontend/dist-ssr/
+/frontend/coverage/
+/frontend/*.local
+/frontend/.tsbuildinfo
+
+# Cypress testing
+/frontend/cypress/videos/
+/frontend/cypress/screenshots/
