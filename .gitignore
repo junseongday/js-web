@@ -1,6 +1,13 @@
 # IDE - VSCode
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
 
 # IDE - IntelliJ IDEA
 .idea/
+*.iws
 *.iml
+*.ipr
