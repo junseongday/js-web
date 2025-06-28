@@ -36,6 +36,7 @@ export const getMe = () => apiClient.get<User>('/auth/me')
 
 // OAuth API
 export const getOAuthUrls = () => apiClient.get<OAuthUrls>('/oauth/urls')
+export const getOAuthStatus = () => apiClient.get<{ enabled: boolean; providers: string[] }>('/oauth/status')
 
 // Post API
 export const getPosts = (page: number, size: number) =>

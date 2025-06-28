@@ -33,6 +33,11 @@ export interface OAuthUrls {
   naver: string
 }
 
+export interface OAuthStatus {
+  enabled: boolean
+  providers: string[]
+}
+
 export interface OAuthRedirectParams {
   token: string
   provider: string

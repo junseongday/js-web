@@ -4,7 +4,7 @@
       <h1>로그인</h1>
 
       <!-- OAuth 로그인 버튼들 -->
-      <div class="oauth-section">
+      <div v-if="isOAuthEnabled" class="oauth-section">
         <p class="oauth-title">소셜 계정으로 로그인</p>
         <div class="oauth-buttons">
           <button
@@ -43,7 +43,13 @@
         </div>
       </div>
 
-      <div class="divider">
+      <!-- OAuth가 비활성화된 경우 안내 메시지 -->
+      <div v-else class="oauth-disabled-notice">
+        <p>현재 소셜 로그인이 비활성화되어 있습니다.</p>
+        <p>관리자에게 문의하세요.</p>
+      </div>
+
+      <div v-if="isOAuthEnabled" class="divider">
         <span>또는</span>
       </div>
 
@@ -71,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, RouterLink, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -83,6 +89,9 @@ const oauthUrls = ref<any>(null)
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+// OAuth 활성화 상태
+const isOAuthEnabled = computed(() => authStore.isOAuthEnabled)
 
 onMounted(async () => {
   // URL 파라미터에서 OAuth 오류 확인
@@ -96,11 +105,17 @@ onMounted(async () => {
   }
 
   try {
-    oauthUrls.value = await authStore.getOAuthLoginUrls()
-    console.log('oauthUrls:', oauthUrls.value)
+    // OAuth 상태 확인
+    await authStore.getOAuthStatusInfo()
+    
+    // OAuth가 활성화된 경우에만 URL 가져오기
+    if (authStore.isOAuthEnabled) {
+      oauthUrls.value = await authStore.getOAuthLoginUrls()
+      console.log('oauthUrls:', oauthUrls.value)
+    }
   } catch (err) {
-    console.error('Failed to load OAuth URLs:', err)
-    error.value = '소셜 로그인을 불러올 수 없습니다.'
+    console.error('Failed to load OAuth information:', err)
+    error.value = '소셜 로그인 정보를 불러올 수 없습니다.'
   }
 })
 
@@ -329,5 +344,20 @@ input:focus {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   background-color: #f9f9f9;
+}
+
+.oauth-disabled-notice {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.oauth-disabled-notice p {
+  margin: 0.5rem 0;
+  color: #666;
+  font-size: 0.9rem;
 }
 </style>

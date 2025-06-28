@@ -42,6 +42,9 @@ public class OAuthController {
     
     @Value("${spring.security.oauth2.client.registration.google.client-secret}")
     private String googleClientSecret;
+    
+    @Value("${oauth2.enabled}")
+    private boolean oauth2Enabled;
 
     @GetMapping("/urls")
     public ResponseEntity<Map<String, String>> getOAuthUrls() {
@@ -59,7 +62,7 @@ public class OAuthController {
     @GetMapping("/status")
     public ResponseEntity<Map<String, Object>> getOAuthStatus() {
         Map<String, Object> status = new HashMap<>();
-        status.put("enabled", true);
+        status.put("enabled", oauth2Enabled);
         status.put("providers", new String[]{"google", "kakao", "naver"});
         return ResponseEntity.ok(status);
     }

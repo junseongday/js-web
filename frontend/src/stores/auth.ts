@@ -1,14 +1,16 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as loginApi, getMe, getOAuthUrls } from '@/api'
-import type { LoginRequest, User, OAuthUrls } from '@/types'
+import { login as loginApi, getMe, getOAuthUrls, getOAuthStatus } from '@/api'
+import type { LoginRequest, User, OAuthUrls, OAuthStatus } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const token = ref<string | null>(localStorage.getItem('token'))
+  const oauthStatus = ref<OAuthStatus | null>(null)
 
   const isAuthenticated = computed(() => !!token.value)
   const currentUser = computed(() => user.value)
+  const isOAuthEnabled = computed(() => oauthStatus.value?.enabled ?? false)
 
   async function login(credentials: LoginRequest) {
     try {
@@ -29,6 +31,17 @@ export const useAuthStore = defineStore('auth', () => {
       return data
     } catch (error) {
       console.error('Failed to get OAuth URLs:', error)
+      throw error
+    }
+  }
+
+  async function getOAuthStatusInfo(): Promise<OAuthStatus> {
+    try {
+      const { data } = await getOAuthStatus()
+      oauthStatus.value = data
+      return data
+    } catch (error) {
+      console.error('Failed to get OAuth status:', error)
       throw error
     }
   }
@@ -72,13 +85,16 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     user,
     token,
+    oauthStatus,
     isAuthenticated,
     currentUser,
+    isOAuthEnabled,
     login,
     logout,
     initialize,
     fetchUser,
     getOAuthLoginUrls,
+    getOAuthStatusInfo,
     getEmailFromToken
   }
 }) 
