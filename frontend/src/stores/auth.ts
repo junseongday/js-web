@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { login as loginApi, getMe } from '@/api'
-import type { LoginRequest, User } from '@/types'
+import { login as loginApi, getMe, getOAuthUrls } from '@/api'
+import type { LoginRequest, User, OAuthUrls } from '@/types'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
@@ -23,6 +23,16 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function getOAuthLoginUrls(): Promise<OAuthUrls> {
+    try {
+      const { data } = await getOAuthUrls()
+      return data
+    } catch (error) {
+      console.error('Failed to get OAuth URLs:', error)
+      throw error
+    }
+  }
+
   function logout() {
     user.value = null
     token.value = null
@@ -31,14 +41,23 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function fetchUser() {
-    const storedEmail = localStorage.getItem('email')
-    if (!token.value || !storedEmail) return
+    if (!token.value) return
     try {
-      const { data } = await getMe(storedEmail)
+      const { data } = await getMe()
       user.value = data
     } catch (error) {
       console.error('Failed to fetch user:', error)
       logout()
+    }
+  }
+
+  function getEmailFromToken(token: string): string | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]))
+      return payload.sub || null
+    } catch (error) {
+      console.error('Failed to parse token:', error)
+      return null
     }
   }
 
@@ -58,6 +77,8 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     initialize,
-    fetchUser
+    fetchUser,
+    getOAuthLoginUrls,
+    getEmailFromToken
   }
 }) 

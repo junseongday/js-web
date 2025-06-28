@@ -3,6 +3,9 @@ export interface User {
   id: number
   email: string
   nickname: string
+  authProvider?: string
+  providerId?: string
+  profileImage?: string
 }
 
 export interface SignupRequest {
@@ -21,6 +24,18 @@ export interface LoginResponse {
   email: string
   nickname: string
   userId: number
+}
+
+// OAuth 관련 타입
+export interface OAuthUrls {
+  google: string
+  kakao: string
+  naver: string
+}
+
+export interface OAuthRedirectParams {
+  token: string
+  provider: string
 }
 
 // 게시글 관련 타입

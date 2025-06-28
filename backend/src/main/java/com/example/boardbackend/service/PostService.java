@@ -4,6 +4,7 @@ import com.example.boardbackend.dto.PostDto;
 import com.example.boardbackend.dto.CommentDto;
 import com.example.boardbackend.entity.Post;
 import com.example.boardbackend.entity.User;
+import com.example.boardbackend.entity.AuthProvider;
 import com.example.boardbackend.repository.PostRepository;
 import com.example.boardbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,16 +57,17 @@ public class PostService {
         );
     }
     
-    public PostDto.PostDetail getPost(Long postId, String currentUserEmail) {
+    public PostDto.PostDetail getPost(Long postId, String currentUserEmail, String currentUserProvider) {
         Post post = postRepository.findByIdWithUser(postId);
         if (post == null) {
             throw new RuntimeException("게시글을 찾을 수 없습니다.");
         }
         
-        boolean isAuthor = currentUserEmail != null && 
-                post.getUser().getEmail().equals(currentUserEmail);
+        boolean isAuthor = currentUserEmail != null && currentUserProvider != null &&
+                post.getUser().getEmail().equals(currentUserEmail) &&
+                post.getUser().getAuthProvider().name().equals(currentUserProvider);
         
-        List<CommentDto.CommentInfo> comments = commentService.getCommentsByPostId(postId, currentUserEmail);
+        List<CommentDto.CommentInfo> comments = commentService.getCommentsByPostId(postId, currentUserEmail, currentUserProvider);
         
         return new PostDto.PostDetail(
                 post.getId(),
@@ -80,8 +82,8 @@ public class PostService {
         );
     }
     
-    public PostDto.PostSummary createPost(PostDto.CreateRequest createRequest, String currentUserEmail) {
-        User user = userRepository.findByEmail(currentUserEmail)
+    public PostDto.PostSummary createPost(PostDto.CreateRequest createRequest, String currentUserEmail, String currentUserProvider) {
+        User user = userRepository.findByEmailAndAuthProvider(currentUserEmail, AuthProvider.valueOf(currentUserProvider))
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
         
         Post post = new Post();
@@ -101,19 +103,15 @@ public class PostService {
         );
     }
     
-    public PostDto.PostSummary updatePost(Long postId, PostDto.UpdateRequest updateRequest, String currentUserEmail) {
+    public PostDto.PostSummary updatePost(Long postId, PostDto.UpdateRequest updateRequest, String currentUserEmail, String currentUserProvider) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        
-        if (!post.getUser().getEmail().equals(currentUserEmail)) {
+        if (!post.getUser().getEmail().equals(currentUserEmail) || !post.getUser().getAuthProvider().name().equals(currentUserProvider)) {
             throw new RuntimeException("게시글을 수정할 권한이 없습니다.");
         }
-        
         post.setTitle(updateRequest.getTitle());
         post.setContent(updateRequest.getContent());
-        
         Post updatedPost = postRepository.save(post);
-        
         return new PostDto.PostSummary(
                 updatedPost.getId(),
                 updatedPost.getTitle(),
@@ -124,14 +122,12 @@ public class PostService {
         );
     }
     
-    public void deletePost(Long postId, String currentUserEmail) {
+    public void deletePost(Long postId, String currentUserEmail, String currentUserProvider) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        
-        if (!post.getUser().getEmail().equals(currentUserEmail)) {
+        if (!post.getUser().getEmail().equals(currentUserEmail) || !post.getUser().getAuthProvider().name().equals(currentUserProvider)) {
             throw new RuntimeException("게시글을 삭제할 권한이 없습니다.");
         }
-        
         postRepository.delete(post);
     }
 } 

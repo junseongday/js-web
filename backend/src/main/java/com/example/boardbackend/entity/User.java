@@ -20,9 +20,8 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @NotBlank
     @Email
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
     
     @NotBlank
@@ -30,10 +29,18 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String nickname;
     
-    @NotBlank
-    @Size(min = 6)
-    @Column(nullable = false)
+    @Column
     private String password;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auth_provider")
+    private AuthProvider authProvider;
+    
+    @Column(name = "provider_id")
+    private String providerId;
+    
+    @Column(name = "profile_image")
+    private String profileImage;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -114,6 +121,30 @@ public class User implements UserDetails {
     
     public void setPassword(String password) {
         this.password = password;
+    }
+    
+    public AuthProvider getAuthProvider() {
+        return authProvider;
+    }
+    
+    public void setAuthProvider(AuthProvider authProvider) {
+        this.authProvider = authProvider;
+    }
+    
+    public String getProviderId() {
+        return providerId;
+    }
+    
+    public void setProviderId(String providerId) {
+        this.providerId = providerId;
+    }
+    
+    public String getProfileImage() {
+        return profileImage;
+    }
+    
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
     
     public LocalDateTime getCreatedAt() {

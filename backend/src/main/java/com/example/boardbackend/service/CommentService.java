@@ -1,6 +1,7 @@
 package com.example.boardbackend.service;
 
 import com.example.boardbackend.dto.CommentDto;
+import com.example.boardbackend.entity.AuthProvider;
 import com.example.boardbackend.entity.Comment;
 import com.example.boardbackend.entity.Post;
 import com.example.boardbackend.entity.User;
@@ -25,13 +26,14 @@ public class CommentService {
     @Autowired
     private UserRepository userRepository;
     
-    public List<CommentDto.CommentInfo> getCommentsByPostId(Long postId, String currentUserEmail) {
+    public List<CommentDto.CommentInfo> getCommentsByPostId(Long postId, String currentUserEmail, String currentUserProvider) {
         List<Comment> comments = commentRepository.findByPostIdWithUserOrderByCreatedAtAsc(postId);
         
         return comments.stream()
                 .map(comment -> {
-                    boolean isAuthor = currentUserEmail != null && 
-                            comment.getUser().getEmail().equals(currentUserEmail);
+                    boolean isAuthor = currentUserEmail != null && currentUserProvider != null &&
+                            comment.getUser().getEmail().equals(currentUserEmail) &&
+                            comment.getUser().getAuthProvider().name().equals(currentUserProvider);
                     return new CommentDto.CommentInfo(
                             comment.getId(),
                             comment.getContent(),
@@ -45,12 +47,20 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
     
-    public CommentDto.CommentInfo createComment(Long postId, CommentDto.CreateRequest createRequest, String currentUserEmail) {
+    public CommentDto.CommentInfo createComment(Long postId, CommentDto.CreateRequest createRequest, String currentUserEmail, String currentUserProvider) {
+        System.out.println("=== CommentService Debug ===");
+        System.out.println("Looking for user with email: " + currentUserEmail + ", provider: " + currentUserProvider);
+        
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
         
-        User user = userRepository.findByEmail(currentUserEmail)
+        AuthProvider authProvider = AuthProvider.valueOf(currentUserProvider.toUpperCase());
+        System.out.println("Converted AuthProvider: " + authProvider);
+        
+        User user = userRepository.findByEmailAndAuthProvider(currentUserEmail, authProvider)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+        
+        System.out.println("Found user: " + user.getEmail() + " (" + user.getAuthProvider() + ")");
         
         Comment comment = new Comment();
         comment.setContent(createRequest.getContent());
@@ -70,11 +80,12 @@ public class CommentService {
         );
     }
     
-    public CommentDto.CommentInfo updateComment(Long commentId, CommentDto.UpdateRequest updateRequest, String currentUserEmail) {
+    public CommentDto.CommentInfo updateComment(Long commentId, CommentDto.UpdateRequest updateRequest, String currentUserEmail, String currentUserProvider) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
         
-        if (!comment.getUser().getEmail().equals(currentUserEmail)) {
+        if (!comment.getUser().getEmail().equals(currentUserEmail) || 
+            !comment.getUser().getAuthProvider().name().equals(currentUserProvider)) {
             throw new RuntimeException("댓글을 수정할 권한이 없습니다.");
         }
         
@@ -93,11 +104,12 @@ public class CommentService {
         );
     }
     
-    public void deleteComment(Long commentId, String currentUserEmail) {
+    public void deleteComment(Long commentId, String currentUserEmail, String currentUserProvider) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
         
-        if (!comment.getUser().getEmail().equals(currentUserEmail)) {
+        if (!comment.getUser().getEmail().equals(currentUserEmail) || 
+            !comment.getUser().getAuthProvider().name().equals(currentUserProvider)) {
             throw new RuntimeException("댓글을 삭제할 권한이 없습니다.");
         }
         

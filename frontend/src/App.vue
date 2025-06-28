@@ -1,13 +1,37 @@
 <script setup lang="ts">
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { onMounted } from 'vue'
+import { onMounted, ref, provide } from 'vue'
+import Toast from '@/components/Toast.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
 
+// 토스트 상태 관리
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'info' as 'success' | 'error' | 'info' | 'warning'
+})
+
+const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+  toast.value = {
+    show: true,
+    message,
+    type
+  }
+  
+  setTimeout(() => {
+    toast.value.show = false
+  }, 3000)
+}
+
+// 전역으로 토스트 함수 제공
+provide('showToast', showToast)
+
 const logout = () => {
   authStore.logout()
+  showToast('로그아웃되었습니다.', 'success')
   router.push('/login')
 }
 
@@ -40,6 +64,13 @@ onMounted(() => {
     <main class="app-main">
       <RouterView />
     </main>
+
+    <!-- 토스트 알림 -->
+    <Toast 
+      :show="toast.show" 
+      :message="toast.message" 
+      :type="toast.type" 
+    />
   </div>
 </template>
 

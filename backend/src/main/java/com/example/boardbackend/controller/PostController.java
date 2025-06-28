@@ -1,6 +1,7 @@
 package com.example.boardbackend.controller;
 
 import com.example.boardbackend.dto.PostDto;
+import com.example.boardbackend.security.JwtTokenProvider;
 import com.example.boardbackend.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +20,9 @@ public class PostController {
     
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private JwtTokenProvider tokenProvider;
     
     @GetMapping
     @Operation(summary = "게시글 목록 조회", description = "페이징된 게시글 목록을 조회합니다.")
@@ -34,48 +38,45 @@ public class PostController {
     @GetMapping("/{postId}")
     @Operation(summary = "게시글 상세 조회", description = "특정 게시글의 상세 정보를 조회합니다.")
     public ResponseEntity<PostDto.PostDetail> getPost(@PathVariable Long postId) {
-        String currentUserEmail = getCurrentUserEmail();
+        String[] userInfo = getCurrentUserInfo();
+        String currentUserEmail = userInfo[0];
+        String currentUserProvider = userInfo[1];
+        
         System.out.println("Current user email: " + currentUserEmail);
-        PostDto.PostDetail postDetail = postService.getPost(postId, currentUserEmail);
+        PostDto.PostDetail postDetail = postService.getPost(postId, currentUserEmail, currentUserProvider);
         return ResponseEntity.ok(postDetail);
     }
-    
+
     @PostMapping
     @Operation(summary = "게시글 작성", description = "새로운 게시글을 작성합니다.")
-    public ResponseEntity<PostDto.PostSummary> createPost(@Valid @RequestBody PostDto.CreateRequest createRequest) {
-        String currentUserEmail = getCurrentUserEmail();
-        if (currentUserEmail == null) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        PostDto.PostSummary postSummary = postService.createPost(createRequest, currentUserEmail);
-        return ResponseEntity.ok(postSummary);
+    public ResponseEntity<PostDto.PostSummary> createPost(@RequestBody PostDto.CreateRequest createRequest, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenProvider.getEmailFromJWT(token);
+        String provider = tokenProvider.getProviderFromJWT(token);
+        PostDto.PostSummary summary = postService.createPost(createRequest, email, provider);
+        return ResponseEntity.ok(summary);
     }
     
     @PutMapping("/{postId}")
     @Operation(summary = "게시글 수정", description = "기존 게시글을 수정합니다.")
     public ResponseEntity<PostDto.PostSummary> updatePost(
             @PathVariable Long postId,
-            @Valid @RequestBody PostDto.UpdateRequest updateRequest) {
-        
-        String currentUserEmail = getCurrentUserEmail();
-        if (currentUserEmail == null) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        PostDto.PostSummary postSummary = postService.updatePost(postId, updateRequest, currentUserEmail);
+            @Valid @RequestBody PostDto.UpdateRequest updateRequest,
+            @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenProvider.getEmailFromJWT(token);
+        String provider = tokenProvider.getProviderFromJWT(token);
+        PostDto.PostSummary postSummary = postService.updatePost(postId, updateRequest, email, provider);
         return ResponseEntity.ok(postSummary);
     }
     
     @DeleteMapping("/{postId}")
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
-    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
-        String currentUserEmail = getCurrentUserEmail();
-        if (currentUserEmail == null) {
-            return ResponseEntity.status(401).build();
-        }
-        
-        postService.deletePost(postId, currentUserEmail);
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId, @RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenProvider.getEmailFromJWT(token);
+        String provider = tokenProvider.getProviderFromJWT(token);
+        postService.deletePost(postId, email, provider);
         return ResponseEntity.ok().build();
     }
     
@@ -86,5 +87,20 @@ public class PostController {
             return authentication.getName();
         }
         return null;
+    }
+
+    private String[] getCurrentUserInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && 
+            !authentication.getName().equals("anonymousUser")) {
+            String sub = authentication.getName();
+            if (sub.contains("|")) {
+                String[] parts = sub.split("\\|");
+                if (parts.length == 2) {
+                    return new String[]{parts[0], parts[1]};
+                }
+            }
+        }
+        return new String[]{null, null};
     }
 } 

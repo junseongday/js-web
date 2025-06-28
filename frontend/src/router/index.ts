@@ -6,6 +6,7 @@ import PostCreateView from '../views/PostCreateView.vue'
 import PostEditView from '../views/PostEditView.vue'
 import LoginView from '../views/LoginView.vue'
 import SignupView from '../views/SignupView.vue'
+import OAuthRedirectView from '../views/OAuthRedirectView.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const router = createRouter({
@@ -49,6 +50,11 @@ const router = createRouter({
       path: '/signup',
       name: 'signup',
       component: SignupView
+    },
+    {
+      path: '/oauth/redirect',
+      name: 'oauth-redirect',
+      component: OAuthRedirectView
     }
   ]
 })

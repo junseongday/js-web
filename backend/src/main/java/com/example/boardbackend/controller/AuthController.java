@@ -61,8 +61,11 @@ public class AuthController {
     
     @GetMapping("/me")
     @Operation(summary = "현재 사용자 정보 조회", description = "현재 로그인된 사용자의 정보를 조회합니다.")
-    public ResponseEntity<UserDto.UserInfo> getCurrentUser(@RequestParam String email) {
-        UserDto.UserInfo userInfo = userService.getCurrentUser(email);
+    public ResponseEntity<UserDto.UserInfo> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.replace("Bearer ", "");
+        String email = tokenProvider.getEmailFromJWT(token);
+        String provider = tokenProvider.getProviderFromJWT(token);
+        UserDto.UserInfo userInfo = userService.getCurrentUser(email, provider);
         return ResponseEntity.ok(userInfo);
     }
 } 

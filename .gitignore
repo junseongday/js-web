@@ -24,6 +24,7 @@ lerna-debug.log*
 /backend/build/
 /backend/target/
 /backend/localDB.txt
+/backend/src/main/resources/application-local.yml
 *.class
 
 # Frontend (Node/Vue)

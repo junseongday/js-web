@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import com.example.boardbackend.entity.User;
 
 @Component
 public class JwtTokenProvider {
@@ -38,6 +39,30 @@ public class JwtTokenProvider {
                 .compact();
     }
     
+    public String generateToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        
+        return Jwts.builder()
+                .setSubject(email)
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+    
+    public String generateToken(User user) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        String subject = user.getEmail() + "|" + user.getAuthProvider().name();
+        return Jwts.builder()
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+    
     public String getUsernameFromJWT(String token) {
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(getSigningKey())
@@ -46,6 +71,32 @@ public class JwtTokenProvider {
                 .getBody();
         
         return claims.getSubject();
+    }
+    
+    public String getEmailFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        String subject = claims.getSubject();
+        if (subject.contains("|")) {
+            return subject.split("\\|")[0];
+        }
+        return subject;
+    }
+    
+    public String getProviderFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        String subject = claims.getSubject();
+        if (subject.contains("|")) {
+            return subject.split("\\|")[1];
+        }
+        return "LOCAL";
     }
     
     public boolean validateToken(String authToken) {

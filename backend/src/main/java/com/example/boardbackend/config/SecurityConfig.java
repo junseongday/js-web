@@ -2,6 +2,11 @@ package com.example.boardbackend.config;
 
 import com.example.boardbackend.security.JwtAuthenticationFilter;
 import com.example.boardbackend.security.JwtTokenProvider;
+import com.example.boardbackend.security.OAuth2LoginSuccessHandler;
+import com.example.boardbackend.security.OAuth2LoginFailureHandler;
+import com.example.boardbackend.repository.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +33,12 @@ public class SecurityConfig {
     @Autowired
     private JwtTokenProvider tokenProvider;
     
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
@@ -51,13 +62,35 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/oauth/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/posts", "/api/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
+                .requestMatchers("/login/oauth2/code/**").permitAll()
                 .anyRequest().authenticated()
+            )
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oAuth2LoginSuccessHandler())
+                .failureHandler(oAuth2LoginFailureHandler)
             )
             .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+    
+    @Bean
+    public OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler() {
+        OAuth2LoginSuccessHandler handler = new OAuth2LoginSuccessHandler();
+        handler.setJwtTokenProvider(tokenProvider);
+        handler.setUserRepository(userRepository);
+        handler.setObjectMapper(objectMapper());
+        return handler;
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        return mapper;
     }
     
     @Bean

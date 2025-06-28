@@ -10,7 +10,8 @@ import type {
   UpdatePostRequest,
   Comment,
   CreateCommentRequest,
-  UpdateCommentRequest
+  UpdateCommentRequest,
+  OAuthUrls
 } from './types'
 
 const apiClient = axios.create({
@@ -31,7 +32,10 @@ apiClient.interceptors.request.use((config) => {
 // Auth API
 export const signup = (data: SignupRequest) => apiClient.post<User>('/auth/signup', data)
 export const login = (data: LoginRequest) => apiClient.post<LoginResponse>('/auth/login', data)
-export const getMe = (email: string) => apiClient.get<User>(`/auth/me?email=${email}`)
+export const getMe = () => apiClient.get<User>('/auth/me')
+
+// OAuth API
+export const getOAuthUrls = () => apiClient.get<OAuthUrls>('/oauth/urls')
 
 // Post API
 export const getPosts = (page: number, size: number) =>
