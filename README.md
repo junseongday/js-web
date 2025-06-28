@@ -143,13 +143,6 @@ npm run dev
 
 자세한 API 명세는 Swagger UI 참고.
 
-## 프로젝트 구조
-```
-js-web/
-├── backend/      # Spring Boot 백엔드
-└── frontend/     # Vue.js 프론트엔드
-```
-
 ## 문제해결 & 참고
 - 소셜 로그인 버튼이 비활성화되거나, [invalid_request], [redirect_uri_mismatch] 등 오류 발생 시:
   - [OAUTH_SETUP.md](./OAUTH_SETUP.md) 및 [GOOGLE_OAUTH_SETUP.md](./GOOGLE_OAUTH_SETUP.md) 참고
