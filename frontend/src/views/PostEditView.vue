@@ -18,9 +18,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getPost, updatePost } from '@/api'
 import type { Post } from '@/types'
+import '@/assets/styles/posts.css'
 
 const props = defineProps({
   id: {
@@ -52,36 +53,4 @@ const handleSubmit = async () => {
     error.value = '게시글 수정에 실패했습니다.'
   }
 }
-</script>
-
-<style scoped>
-.form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.form-group {
-  margin-bottom: 1.5rem;
-}
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-.btn-submit {
-  width: 100%;
-  padding: 12px;
-}
-.error-message {
-  color: red;
-  margin-top: 1rem;
-  text-align: center;
-}
-</style> 
+</script> 

@@ -20,6 +20,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { createPost } from '@/api'
+import '@/assets/styles/posts.css'
 
 const title = ref('')
 const content = ref('')
@@ -34,36 +35,4 @@ const handleSubmit = async () => {
     error.value = '게시글 작성에 실패했습니다.'
   }
 }
-</script>
-
-<style scoped>
-.form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.form-group {
-  margin-bottom: 1.5rem;
-}
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-.btn-submit {
-  width: 100%;
-  padding: 12px;
-}
-.error-message {
-  color: red;
-  margin-top: 1rem;
-  text-align: center;
-}
-</style> 
+</script> 

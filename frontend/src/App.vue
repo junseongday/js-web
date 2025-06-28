@@ -3,6 +3,7 @@ import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { onMounted, ref, provide } from 'vue'
 import Toast from '@/components/Toast.vue'
+import '@/assets/app.css'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -73,73 +74,3 @@ onMounted(() => {
     />
   </div>
 </template>
-
-<style scoped>
-#app-container {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.app-header {
-  background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
-  padding: 0 2rem;
-}
-
-.wrapper {
-  max-width: 1280px;
-  margin: 0 auto;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 60px;
-}
-
-.logo {
-  font-weight: bold;
-  font-size: 1.5rem;
-  color: #333;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.nav-links a {
-  color: #555;
-  font-weight: 500;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.guest-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
-.logout-button {
-    background-color: transparent;
-    color: #555;
-    border: 1px solid #ccc;
-    padding: 6px 12px;
-}
-
-.logout-button:hover {
-    background-color: #f5f5f5;
-}
-
-.app-main {
-  flex-grow: 1;
-  padding: 2rem 0;
-}
-</style>

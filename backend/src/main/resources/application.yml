@@ -62,7 +62,7 @@ spring:
 
 # OAuth2 활성화 플래그
 oauth2:
-  enabled: false
+  enabled: true
 
 jwt:
   secret: your-super-secret-jwt-key-that-is-long-enough-for-hs512-algorithm-and-must-be-at-least-512-bits-long-which-means-at-least-64-characters

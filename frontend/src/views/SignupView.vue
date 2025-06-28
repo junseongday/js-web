@@ -29,6 +29,7 @@
 import { ref } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { signup } from '@/api'
+import '@/assets/styles/auth.css'
 
 const email = ref('')
 const nickname = ref('')
@@ -48,47 +49,4 @@ const handleSignup = async () => {
     error.value = '회원가입에 실패했습니다. 다시 시도해주세요.'
   }
 }
-</script>
-
-<style scoped>
-.auth-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-}
-.auth-form {
-  max-width: 400px;
-  width: 100%;
-  padding: 2rem;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  background-color: #fff;
-}
-h1 {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-.form-group {
-  margin-bottom: 1rem;
-}
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-.btn-submit {
-  width: 100%;
-  padding: 12px;
-}
-.error-message {
-  color: red;
-  margin-top: 1rem;
-  text-align: center;
-}
-.switch-auth {
-  margin-top: 1.5rem;
-  text-align: center;
-  color: #555;
-}
-</style> 
+</script> 

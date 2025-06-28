@@ -1,3 +1,8 @@
+/* Import component styles */
+@import './styles/auth.css';
+@import './styles/posts.css';
+@import './styles/components.css';
+
 /* 인스타그램 스타일 디자인 */
 :root {
   --primary-color: #0095f6;
@@ -186,11 +191,11 @@ nav {
   .app-main {
     padding: 16px;
   }
-  
+
   nav {
     padding: 0 16px;
   }
-  
+
   .card {
     padding: 16px;
   }

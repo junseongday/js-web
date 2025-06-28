@@ -12,6 +12,7 @@ import { onMounted, ref, inject } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { getMe } from '@/api'
+import '@/assets/styles/auth.css'
 
 const router = useRouter()
 const route = useRoute()
@@ -66,43 +67,4 @@ onMounted(async () => {
     }, 2000)
   }
 })
-</script>
-
-<style scoped>
-.oauth-redirect {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-}
-
-.loading-container {
-  text-align: center;
-  padding: 2rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-p {
-  margin: 0;
-  color: #333;
-  font-size: 1.1rem;
-}
-</style> 
+</script> 
